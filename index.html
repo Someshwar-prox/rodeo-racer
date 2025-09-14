@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="description" content="Rodeo Racer — Ultimate Horse Racing Experience. Play online, rack combos & win! Made by Somesh.">
+    <meta name="author" content="Somesh">
+    <meta name="keywords" content="Rodeo Racer, Horse Race Game, JavaScript game, Somesh">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rodeo Racer - Ultimate Horse Racing Experience</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <div class="made-by">
+     🚀 Game made by <strong>Somesh</strong>
+    </div>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(45deg, #1a2980, #26d0ce, #ff6b6b, #4ecdc4);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .made-by {
+         position: absolute;
+         bottom: 10px;
+         right: 10px;
+         font-size: 14px;
+         font-family: monospace;
+         background: rgba(0,0,0,0.6);
+         color: #00ffcc;
+         padding: 6px 12px;
+         border-radius: 8px;
+         animation: glow 2s infinite alternate;
+        }
+
+@keyframes glow {
+  from { text-shadow: 0 0 5px #00ffcc; }
+  to { text-shadow: 0 0 20px #00ffcc, 0 0 30px #00ffcc; }
+}
+
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        
+        .game-title {
+            font-size: 4rem;
+            font-weight: 900;
+            text-shadow: 4px 4px 0 #000, 8px 8px 20px rgba(0,0,0,0.5);
+            background: linear-gradient(45deg, #ffcc00, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: #ffcc00; /* Fallback color for unsupported browsers */
+            -webkit-text-fill-color: transparent;
+            animation: gradientText 3s ease infinite;
+            margin-bottom: 10px;
+        }
+        
+        @keyframes gradientText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .game-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .streak-display {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff4757, #ff6b6b);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(255,71,87,0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .game-container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .race-track {
+            position: relative;
+            height: 500px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 3px solid #8B4513;
+            border-radius: 15px;
+            background: linear-gradient(to bottom, #228B22, #006400);
+            box-shadow: inset 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .track-lane {
+            position: absolute;
+            width: 100%;
+            height: 80px;
+            border-bottom: 2px dashed rgba(255,255,255,0.6);
+            display: flex;
+            align-items: center;
+        }
+        
+        .horse {
+            position: absolute;
+            font-size: 50px;
+            transition: left 0.15s ease-out;
+            z-index: 10;
+            text-shadow: 2px 2px 0 #000, 0 0 10px rgba(255,255,255,0.3);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+        
+        .player-horse {
+            color: #ff3300;
+            transform-origin: center;
+        }
+        
+        .opponent-horse {
+            color: #3399ff;
+        }
+        
+        .finish-line {
+            position: absolute;
+            right: 100px;
+            top: 0;
+            width: 12px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                #fff,
+                #fff 10px,
+                #000 10px,
+                #000 20px
+            );
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 18px 35px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-start {
+            background: linear-gradient(45deg, #00cc00, #009900, #00ff44);
+            color: white;
+            box-shadow: 0 8px 20px rgba(0,204,0,0.3);
+        }
+        
+        .btn-accelerate {
+            background: linear-gradient(45deg, #ff3300, #cc0000, #ff6666);
+            color: white;
+            box-shadow: 0 8px 20px rgba(255,51,0,0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 1rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-value {
+            display: block;
+            font-weight: bold;
+            color: #ffcc00;
+            font-size: 1.5rem;
+            margin-top: 5px;
+            text-shadow: 0 0 10px rgba(255,204,0,0.5);
+        }
+        
+        .level-display {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff9900, #ffcc00, #ff6666);
+            padding: 15px;
+            border-radius: 15px;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(255,153,0,0.3);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .power-ups {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .power-up {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #ffcc00;
+            background: rgba(255,204,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .power-up:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 0 20px rgba(255,204,0,0.6);
+        }
+        
+        .power-up.active {
+            background: linear-gradient(45deg, #ffcc00, #ff6666);
+            animation: powerUpActive 1s infinite;
+        }
+        
+        @keyframes powerUpActive {
+            0% { box-shadow: 0 0 10px rgba(255,204,0,0.8); }
+            50% { box-shadow: 0 0 25px rgba(255,204,0,1); }
+            100% { box-shadow: 0 0 10px rgba(255,204,0,0.8); }
+        }
+        
+        .achievements {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .achievement {
+            display: inline-block;
+            background: rgba(255,204,0,0.2);
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,204,0,0.3);
+        }
+        
+        .achievement.unlocked {
+            background: linear-gradient(45deg, #ffcc00, #ff6666);
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(255,204,0,0.5);
+        }
+        
+        .combo-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 2px 2px 0 #000, 0 0 20px rgba(255,204,0,0.8);
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .combo-show {
+            animation: comboAnimation 2s ease-out;
+        }
+        
+        @keyframes comboAnimation {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2.8rem;
+            }
+            
+            .horse {
+                font-size: 40px;
+            }
+            
+            .btn {
+                padding: 15px 25px;
+                font-size: 1.1rem;
+            }
+            
+            .game-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Enhanced animations */
+        @keyframes horseGallop {
+            0% { transform: translateY(0) rotate(-2deg); }
+            25% { transform: translateY(-8px) rotate(1deg); }
+            50% { transform: translateY(-3px) rotate(-1deg); }
+            75% { transform: translateY(-6px) rotate(2deg); }
+            100% { transform: translateY(0) rotate(-2deg); }
+        }
+        
+        .galloping {
+            animation: horseGallop 0.25s infinite;
+        }
+        
+        .super-speed {
+            animation: horseGallop 0.15s infinite, superSpeedGlow 0.5s infinite;
+        }
+        
+        @keyframes superSpeedGlow {
+            0% { filter: drop-shadow(0 0 5px #ff3300); }
+            50% { filter: drop-shadow(0 0 15px #ff3300) drop-shadow(0 0 25px #ffcc00); }
+            100% { filter: drop-shadow(0 0 5px #ff3300); }
+        }
+        
+        /* Particle effects */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffcc00;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 15;
+        }
+        
+        /* Progressive difficulty indicator */
+        .difficulty-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .difficulty-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s;
+        }
+        
+        .difficulty-dot.active {
+            background: linear-gradient(45deg, #ff3300, #ffcc00);
+            box-shadow: 0 0 10px rgba(255,51,0,0.6);
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffcc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="game-title">🏆 RODEO RACER 🏆</h1>
+            <p class="game-subtitle">The Ultimate Horse Racing Experience • Race • Win • Dominate</p>
+            <div class="streak-display">
+                🔥 Win Streak: <span id="winStreak">0</span> 
+                | 💰 Total Wins: <span id="totalWins">0</span>
+            </div>
+        </header>
+        
+        <div class="level-display">
+            Level: <span id="level">1</span> - <span id="location">Green Valley</span>
+            <div class="difficulty-indicator">
+                <span style="margin-right: 10px;">Difficulty:</span>
+                <div class="difficulty-dot active"></div>
+                <div class="difficulty-dot"></div>
+                <div class="difficulty-dot"></div>
+                <div class="difficulty-dot"></div>
+                <div class="difficulty-dot"></div>
+            </div>
+        </div>
+        
+        <div class="game-stats">
+            <div class="stat-item">
+                <div>Speed</div>
+                <span id="speed" class="stat-value">0</span>
+                <div style="font-size: 0.8rem;">mph</div>
+            </div>
+            <div class="stat-item">
+                <div>Distance</div>
+                <span id="distance" class="stat-value">0</span>
+                <div style="font-size: 0.8rem;">meters</div>
+            </div>
+            <div class="stat-item">
+                <div>Progress</div>
+                <span id="progress" class="stat-value">0</span>
+                <div style="font-size: 0.8rem;">%</div>
+            </div>
+            <div class="stat-item">
+                <div>Combo</div>
+                <span id="combo" class="stat-value">0</span>
+                <div style="font-size: 0.8rem;">clicks</div>
+            </div>
+            <div class="stat-item">
+                <div>Energy</div>
+                <span id="energy" class="stat-value">100</span>
+                <div style="font-size: 0.8rem;">%</div>
+            </div>
+        </div>
+        
+        <div class="power-ups">
+            <div class="power-up" id="speedBoost" title="Speed Boost (3 uses)">
+                ⚡<span style="font-size: 0.7rem; position: absolute; bottom: -5px; right: -5px;" id="speedBoostCount">3</span>
+            </div>
+            <div class="power-up" id="energyRestore" title="Energy Restore (2 uses)">
+                💊<span style="font-size: 0.7rem; position: absolute; bottom: -5px; right: -5px;" id="energyCount">2</span>
+            </div>
+            <div class="power-up" id="perfectRhythm" title="Perfect Rhythm (1 use)">
+                🎵<span style="font-size: 0.7rem; position: absolute; bottom: -5px; right: -5px;" id="rhythmCount">1</span>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <div class="race-track" id="raceTrack">
+                <div class="finish-line"></div>
+                <div class="combo-display" id="comboDisplay"></div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-start" id="startBtn">
+                    <i class="fas fa-play"></i> Start Race
+                </button>
+                <button class="btn btn-accelerate" id="accelerateBtn">
+                    <i class="fas fa-bolt"></i> GALLOP!
+                </button>
+            </div>
+        </div>
+        
+        <div class="achievements">
+            <h4 style="color: #ffcc00; margin-bottom: 15px;">🏅 Achievements</h4>
+            <div id="achievementsList">
+                <span class="achievement" data-achievement="firstWin">First Victory</span>
+                <span class="achievement" data-achievement="winStreak5">5 Win Streak</span>
+                <span class="achievement" data-achievement="speedDemon">Speed Demon</span>
+                <span class="achievement" data-achievement="comboMaster">Combo Master</span>
+                <span class="achievement" data-achievement="levelMaster">Level Master</span>
+                <span class="achievement" data-achievement="perfectRace">Perfect Race</span>
+            </div>
+        </div>
+        
+        <div class="instructions" style="background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 15px; margin-top: 20px;">
+            <h3 style="color: #ffcc00; margin-bottom: 15px;">🎮 How to Dominate</h3>
+            <div style="margin-bottom: 10px;"><i class="fas fa-mobile-alt" style="margin-right: 10px; color: #ffcc00;"></i>
+                <strong>Mobile:</strong> Tap GALLOP repeatedly with perfect rhythm for maximum speed</div>
+            <div style="margin-bottom: 10px;"><i class="fas fa-laptop" style="margin-right: 10px; color: #ffcc00;"></i>
+                <strong>Desktop:</strong> Press Enter/Spacebar in rapid succession</div>
+            <div style="margin-bottom: 10px;"><i class="fas fa-bolt" style="margin-right: 10px; color: #ffcc00;"></i>
+                <strong>Power-ups:</strong> Use strategically for devastating speed bursts</div>
+            <div style="margin-bottom: 10px;"><i class="fas fa-fire" style="margin-right: 10px; color: #ffcc00;"></i>
+                <strong>Combo System:</strong> Maintain clicking rhythm for massive speed bonuses</div>
+            <div><i class="fas fa-trophy" style="margin-right: 10px; color: #ffcc00;"></i>
+                <strong>Win Streaks:</strong> Each victory increases difficulty but also rewards!</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced game variables
+            let gameActive = false;
+            let playerSpeed = 0;
+            let playerPosition = 0;
+            let opponentSpeeds = [0, 0, 0];
+            let opponentPositions = [0, 0, 0];
+            let raceDistance = 1000;
+            let level = 1;
+            let winStreak = parseInt(localStorage.getItem('winStreak') || '0');
+            let totalWins = parseInt(localStorage.getItem('totalWins') || '0');
+            let energy = 100;
+            let combo = 0;
+            let lastClickTime = 0;
+            let perfectRhythmActive = false;
+            let speedBoostActive = false;
+            let powerUps = {
+                speedBoost: 3,
+                energyRestore: 2,
+                perfectRhythm: 1
+            };
+            
+            let achievements = JSON.parse(localStorage.getItem('achievements') || '{}');
+            
+            const locations = [
+                'Green Valley', 'Desert Canyon', 'Forest Trail', 'Mountain Pass', 
+                'Thunder Plains', 'Crystal Lake', 'Volcano Ridge', 'Ice Fields',
+                'Golden Meadows', 'Shadow Realm'
+            ];
+            
+            const difficultyMultiplier = () => 1 + (level * 0.15) + (winStreak * 0.1);
+            
+            // DOM elements
+            const raceTrack = document.getElementById('raceTrack');
+            const startBtn = document.getElementById('startBtn');
+            const accelerateBtn = document.getElementById('accelerateBtn');
+            const speedDisplay = document.getElementById('speed');
+            const distanceDisplay = document.getElementById('distance');
+            const progressDisplay = document.getElementById('progress');
+            const levelDisplay = document.getElementById('level');
+            const locationDisplay = document.getElementById('location');
+            const winStreakDisplay = document.getElementById('winStreak');
+            const totalWinsDisplay = document.getElementById('totalWins');
+            const energyDisplay = document.getElementById('energy');
+            const comboDisplay = document.getElementById('combo');
+            const comboAnimation = document.getElementById('comboDisplay');
+            
+            // Initialize displays
+            updateDisplays();
+            updateAchievements();
+            
+            // Create horses with enhanced visuals
+            const playerHorse = document.createElement('div');
+            playerHorse.className = 'horse player-horse';
+            playerHorse.innerHTML = '🐎';
+            playerHorse.style.bottom = '160px';
+            playerHorse.style.left = '50px';
+            raceTrack.appendChild(playerHorse);
+            
+            const opponentHorses = [];
+            const opponentEmojis = ['🐴', '🦄', '🐎'];
+            for (let i = 0; i < 3; i++) {
+                const horse = document.createElement('div');
+                horse.className = 'horse opponent-horse';
+                horse.innerHTML = opponentEmojis[i];
+                horse.style.bottom = (260 + i * 80) + 'px';
+                horse.style.left = '50px';
+                raceTrack.appendChild(horse);
+                opponentHorses.push(horse);
+            }
+            
+            // Create enhanced scenery
+            createEnhancedScenery();
+            
+            // Event listeners
+            startBtn.addEventListener('click', startGame);
+            accelerateBtn.addEventListener('click', handleAccelerate);
+            
+            // Power-up listeners
+            document.getElementById('speedBoost').addEventListener('click', () => usePowerUp('speedBoost'));
+            document.getElementById('energyRestore').addEventListener('click', () => usePowerUp('energyRestore'));
+            document.getElementById('perfectRhythm').addEventListener('click', () => usePowerUp('perfectRhythm'));
+            
+            document.addEventListener('keydown', function(e) {
+                if ((e.key === 'Enter' || e.key === ' ') && gameActive) {
+                    handleAccelerate();
+                    e.preventDefault();
+                }
+            });
+            
+            function updateDisplays() {
+                winStreakDisplay.textContent = winStreak;
+                totalWinsDisplay.textContent = totalWins;
+                levelDisplay.textContent = level;
+                locationDisplay.textContent = locations[(level - 1) % locations.length];
+                energyDisplay.textContent = Math.round(energy);
+                comboDisplay.textContent = combo;
+                
+                // Update difficulty indicators
+                const dots = document.querySelectorAll('.difficulty-dot');
+                const difficulty = Math.min(Math.floor(difficultyMultiplier()), 5);
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index < difficulty);
+                });
+                
+                // Update power-up counts
+                document.getElementById('speedBoostCount').textContent = powerUps.speedBoost;
+                document.getElementById('energyCount').textContent = powerUps.energyRestore;
+                document.getElementById('rhythmCount').textContent = powerUps.perfectRhythm;
+            }
+            
+            function startGame() {
+                if (gameActive) return;
+                
+                gameActive = true;
+                playerSpeed = 0;
+                playerPosition = 0;
+                opponentSpeeds = [0, 0, 0];
+                opponentPositions = [0, 0, 0];
+                energy = 100;
+                combo = 0;
+                speedBoostActive = false;
+                perfectRhythmActive = false;
+                
+                // Reset power-ups for new level
+                if (level % 3 === 1) {
+                    powerUps.speedBoost = Math.min(powerUps.speedBoost + 1, 5);
+                }
+                if (level % 5 === 1) {
+                    powerUps.energyRestore = Math.min(powerUps.energyRestore + 1, 3);
+                }
+                
+                updateDisplays();
+                startBtn.innerHTML = '<i class="fas fa-hourglass-half"></i> Racing...';
+                startBtn.disabled = true;
+                
+                gameLoop();
+            }
+            
+            function handleAccelerate() {
+                if (!gameActive || energy <= 0) return;
+                
+                const currentTime = Date.now();
+                const timeDiff = currentTime - lastClickTime;
+                lastClickTime = currentTime;
+                
+                // Perfect rhythm detection (150-250ms between clicks)
+                const perfectRhythm = timeDiff > 150 && timeDiff < 250;
+                let speedBonus = 2;
+                
+                if (perfectRhythm || perfectRhythmActive) {
+                    speedBonus = perfectRhythmActive ? 4 : 3;
+                    combo++;
+                    
+                    if (combo % 10 === 0 && combo > 0) {
+                        showComboAnimation(combo);
+                        createParticleExplosion(playerHorse);
+                        speedBonus += 2;
+                    }
+                } else {
+                    combo = Math.max(0, combo - 1);
+                }
+                
+                if (speedBoostActive) {
+                    speedBonus *= 2;
+                }
+                
+                playerSpeed += speedBonus;
+                playerSpeed = Math.min(playerSpeed, 40);
+                
+                // Energy consumption
+                const energyCost = speedBoostActive ? 0.5 : 1;
+                energy = Math.max(0, energy - energyCost);
+                
+                // Visual feedback
+                playerHorse.classList.remove('galloping', 'super-speed');
+                if (speedBoostActive || combo >= 10) {
+                    playerHorse.classList.add('super-speed');
+                } else {
+                    playerHorse.classList.add('galloping');
+                }
+                
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    playerHorse.classList.remove('galloping', 'super-speed');
+                }, 300);
+                
+                updateDisplays();
+            }
+            
+            function usePowerUp(type) {
+                if (!gameActive || powerUps[type] <= 0) return;
+                
+                powerUps[type]--;
+                
+                switch(type) {
+                    case 'speedBoost':
+                        speedBoostActive = true;
+                        document.getElementById('speedBoost').classList.add('active');
+                        setTimeout(() => {
+                            speedBoostActive = false;
+                            document.getElementById('speedBoost').classList.remove('active');
+                        }, 5000);
+                        break;
+                        
+                    case 'energyRestore':
+                        energy = 100;
+                        createHealingEffect();
+                        break;
+                        
+                    case 'perfectRhythm':
+                        perfectRhythmActive = true;
+                        document.getElementById('perfectRhythm').classList.add('active');
+                        setTimeout(() => {
+                            perfectRhythmActive = false;
+                            document.getElementById('perfectRhythm').classList.remove('active');
+                        }, 10000);
+                        break;
+                }
+                
+                updateDisplays();
+            }
+            
+            function gameLoop() {
+                if (!gameActive) return;
+                
+                // Update player position
+                playerPosition += playerSpeed;
+                const trackWidth = raceTrack.offsetWidth - 150;
+                playerHorse.style.left = (50 + (playerPosition / raceDistance) * (trackWidth / raceTrack.offsetWidth * 100)) + '%';
+                
+                // Update opponents with enhanced AI
+                for (let i = 0; i < 3; i++) {
+                    const aiDifficulty = difficultyMultiplier();
+                    const baseAcceleration = 1 + (i * 0.3);
+                    
+                    // Smart AI that responds to player position
+                    const catchUpBonus = playerPosition > opponentPositions[i] ? 0.5 : 0;
+                    const randomFactor = Math.random() < (0.25 * aiDifficulty) ? 1 : 0;
+                    
+                    if (randomFactor) {
+                        opponentSpeeds[i] += (baseAcceleration * aiDifficulty) + catchUpBonus;
+                    }
+                    
+                    opponentSpeeds[i] = Math.min(opponentSpeeds[i], 28 + (aiDifficulty * 2));
+                    opponentPositions[i] += opponentSpeeds[i];
+                    opponentHorses[i].style.left = (50 + (opponentPositions[i] / raceDistance) * (trackWidth / raceTrack.offsetWidth * 100)) + '%';
+                    
+                    // Add galloping animation to close opponents
+                    if (Math.abs(opponentPositions[i] - playerPosition) < 100) {
+                        opponentHorses[i].classList.add('galloping');
+                    } else {
+                        opponentHorses[i].classList.remove('galloping');
+                    }
+                }
+                
+                // Apply enhanced friction and energy recovery
+                playerSpeed *= energy > 0 ? 0.96 : 0.92;
+                energy = Math.min(100, energy + 0.1);
+                
+                for (let i = 0; i < 3; i++) {
+                    opponentSpeeds[i] *= 0.97;
+                }
+                
+                // Update displays with smooth animation
+                speedDisplay.textContent = Math.round(playerSpeed * 10);
+                distanceDisplay.textContent = Math.min(Math.round(playerPosition), raceDistance);
+                progressDisplay.textContent = Math.min(Math.round((playerPosition / raceDistance) * 100), 100);
+                
+                // Dynamic background effects based on speed
+                if (playerSpeed > 25) {
+                    raceTrack.style.filter = 'blur(1px) brightness(1.2)';
+                } else {
+                    raceTrack.style.filter = 'none';
+                }
+                
+                // Check for finish
+                if (playerPosition >= raceDistance) {
+                    finishRace(true);
+                    return;
+                }
+                
+                // Check if any opponent finished
+                for (let i = 0; i < 3; i++) {
+                    if (opponentPositions[i] >= raceDistance) {
+                        finishRace(false);
+                        return;
+                    }
+                }
+                
+                // Continue the game loop
+                requestAnimationFrame(gameLoop);
+            }
+            
+            function finishRace(isWin) {
+                gameActive = false;
+                startBtn.disabled = false;
+                startBtn.innerHTML = '<i class="fas fa-play"></i> Next Race';
+                
+                if (isWin) {
+                    winStreak++;
+                    totalWins++;
+                    level++;
+                    
+                    // Celebration effects
+                    createCelebration();
+                    showComboAnimation('VICTORY!');
+                    
+                    // Achievement checks
+                    checkAchievements(isWin);
+                    
+                    // Reward power-ups based on performance
+                    if (combo >= 20) {
+                        powerUps.speedBoost = Math.min(powerUps.speedBoost + 1, 5);
+                    }
+                    if (energy > 80) {
+                        powerUps.energyRestore = Math.min(powerUps.energyRestore + 1, 3);
+                    }
+                    
+                    setTimeout(() => {
+                        alert(`🏆 VICTORY! 🏆\n\nLevel ${level - 1} Complete!\nWin Streak: ${winStreak}\nCombo: ${combo}\nNext: ${locations[(level - 1) % locations.length]}`);
+                    }, 1000);
+                    
+                } else {
+                    winStreak = 0;
+                    setTimeout(() => {
+                        alert(`💥 Defeat! 💥\n\nYour horse needs more training!\nTry using power-ups strategically.\nCombo achieved: ${combo}`);
+                    }, 500);
+                }
+                
+                // Save progress
+                localStorage.setItem('winStreak', winStreak.toString());
+                localStorage.setItem('totalWins', totalWins.toString());
+                localStorage.setItem('achievements', JSON.stringify(achievements));
+                
+                updateDisplays();
+                updateAchievements();
+                
+                // Reset visual effects
+                raceTrack.style.filter = 'none';
+            }
+            
+            function checkAchievements(isWin) {
+                const newAchievements = [];
+                
+                if (isWin && !achievements.firstWin) {
+                    achievements.firstWin = true;
+                    newAchievements.push('First Victory');
+                }
+                
+                if (winStreak >= 5 && !achievements.winStreak5) {
+                    achievements.winStreak5 = true;
+                    newAchievements.push('5 Win Streak');
+                }
+                
+                if (playerSpeed >= 35 && !achievements.speedDemon) {
+                    achievements.speedDemon = true;
+                    newAchievements.push('Speed Demon');
+                }
+                
+                if (combo >= 25 && !achievements.comboMaster) {
+                    achievements.comboMaster = true;
+                    newAchievements.push('Combo Master');
+                }
+                
+                if (level >= 10 && !achievements.levelMaster) {
+                    achievements.levelMaster = true;
+                    newAchievements.push('Level Master');
+                }
+                
+                if (isWin && energy > 90 && combo >= 15 && !achievements.perfectRace) {
+                    achievements.perfectRace = true;
+                    newAchievements.push('Perfect Race');
+                }
+                
+                // Show achievement notifications
+                newAchievements.forEach(achievement => {
+                    setTimeout(() => {
+                        showComboAnimation(`🏅 ${achievement}!`);
+                    }, Math.random() * 2000 + 1000);
+                });
+            }
+            
+            function updateAchievements() {
+                const achievementElements = document.querySelectorAll('.achievement');
+                achievementElements.forEach(element => {
+                    const achievementKey = element.dataset.achievement;
+                    if (achievements[achievementKey]) {
+                        element.classList.add('unlocked');
+                    }
+                });
+            }
+            
+            function showComboAnimation(text) {
+                comboAnimation.textContent = text;
+                comboAnimation.classList.remove('combo-show');
+                void comboAnimation.offsetWidth; // Force reflow
+                comboAnimation.classList.add('combo-show');
+            }
+            
+            function createParticleExplosion(element) {
+                const rect = element.getBoundingClientRect();
+                const trackRect = raceTrack.getBoundingClientRect();
+                
+                for (let i = 0; i < 15; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = (rect.left - trackRect.left + 25) + 'px';
+                    particle.style.top = (rect.top - trackRect.top + 25) + 'px';
+                    
+                    const angle = (Math.PI * 2 * i) / 15;
+                    const velocity = 50 + Math.random() * 30;
+                    const vx = Math.cos(angle) * velocity;
+                    const vy = Math.sin(angle) * velocity;
+                    
+                    raceTrack.appendChild(particle);
+                    
+                    let x = rect.left - trackRect.left + 25;
+                    let y = rect.top - trackRect.top + 25;
+                    
+                    const animateParticle = () => {
+                        x += vx * 0.1;
+                        y += vy * 0.1;
+                        particle.style.left = x + 'px';
+                        particle.style.top = y + 'px';
+                        particle.style.opacity = parseFloat(particle.style.opacity || '1') - 0.02;
+                        
+                        if (parseFloat(particle.style.opacity) > 0) {
+                            requestAnimationFrame(animateParticle);
+                        } else {
+                            particle.remove();
+                        }
+                    };
+                    
+                    requestAnimationFrame(animateParticle);
+                }
+            }
+            
+            function createHealingEffect() {
+                const colors = ['#00ff00', '#00cc00', '#66ff66'];
+                for (let i = 0; i < 10; i++) {
+                    const particle = document.createElement('div');
+                    particle.style.position = 'absolute';
+                    particle.style.width = '6px';
+                    particle.style.height = '6px';
+                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.borderRadius = '50%';
+                    particle.style.left = '50%';
+                    particle.style.top = '50%';
+                    particle.style.transform = 'translate(-50%, -50%)';
+                    particle.style.pointerEvents = 'none';
+                    particle.style.zIndex = '20';
+                    
+                    raceTrack.appendChild(particle);
+                    
+                    let y = 250;
+                    let opacity = 1;
+                    
+                    const animateHealing = () => {
+                        y -= 2;
+                        opacity -= 0.02;
+                        particle.style.top = y + 'px';
+                        particle.style.opacity = opacity;
+                        
+                        if (opacity > 0) {
+                            requestAnimationFrame(animateHealing);
+                        } else {
+                            particle.remove();
+                        }
+                    };
+                    
+                    setTimeout(() => requestAnimationFrame(animateHealing), i * 100);
+                }
+            }
+            
+            function createCelebration() {
+                const celebration = document.createElement('div');
+                celebration.className = 'celebration';
+                document.body.appendChild(celebration);
+                
+                const colors = ['#ffcc00', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = (Math.random() * 8 + 4) + 'px';
+                    confetti.style.height = confetti.style.width;
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    
+                    celebration.appendChild(confetti);
+                    
+                    const fallSpeed = Math.random() * 3 + 2;
+                    const rotation = Math.random() * 360;
+                    const drift = (Math.random() - 0.5) * 100;
+                    
+                    confetti.animate([
+                        { 
+                            transform: `translateX(0px) rotate(0deg)`,
+                            opacity: 1 
+                        },
+                        { 
+                            transform: `translateX(${drift}px) rotate(${rotation}deg) translateY(100vh)`,
+                            opacity: 0 
+                        }
+                    ], {
+                        duration: 3000 / fallSpeed,
+                        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                    }).onfinish = () => confetti.remove();
+                }
+                
+                setTimeout(() => celebration.remove(), 4000);
+            }
+            
+            function createEnhancedScenery() {
+                // Dynamic clouds that move
+                for (let i = 0; i < 8; i++) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'cloud';
+                    cloud.innerHTML = '☁️';
+                    cloud.style.position = 'absolute';
+                    cloud.style.top = (Math.random() * 150) + 'px';
+                    cloud.style.left = (Math.random() * 120) + '%';
+                    cloud.style.fontSize = (20 + Math.random() * 30) + 'px';
+                    cloud.style.opacity = '0.7';
+                    cloud.style.zIndex = '1';
+                    
+                    // Animate clouds
+                    cloud.animate([
+                        { transform: 'translateX(0px)' },
+                        { transform: 'translateX(-20px)' }
+                    ], {
+                        duration: 10000 + Math.random() * 10000,
+                        iterations: Infinity,
+                        direction: 'alternate'
+                    });
+                    
+                    raceTrack.appendChild(cloud);
+                }
+                
+                // Enhanced trees with variety
+                const treeEmojis = ['🌲', '🌳', '🌴', '🎋'];
+                for (let i = 0; i < 6; i++) {
+                    const tree = document.createElement('div');
+                    tree.className = 'tree';
+                    tree.innerHTML = treeEmojis[Math.floor(Math.random() * treeEmojis.length)];
+                    tree.style.position = 'absolute';
+                    tree.style.bottom = '0';
+                    tree.style.left = (10 + i * 15) + '%';
+                    tree.style.fontSize = (40 + Math.random() * 30) + 'px';
+                    tree.style.zIndex = '2';
+                    raceTrack.appendChild(tree);
+                }
+                
+                // Add dynamic weather effects
+                if (Math.random() > 0.7) {
+                    createWeatherEffect();
+                }
+            }
+            
+            function createWeatherEffect() {
+                const effects = ['rain', 'snow', 'leaves'];
+                const effect = effects[Math.floor(Math.random() * effects.length)];
+                
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.style.position = 'absolute';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = '-10px';
+                    particle.style.pointerEvents = 'none';
+                    particle.style.zIndex = '3';
+                    
+                    switch(effect) {
+                        case 'rain':
+                            particle.innerHTML = '💧';
+                            particle.style.fontSize = '10px';
+                            break;
+                        case 'snow':
+                            particle.innerHTML = '❄️';
+                            particle.style.fontSize = '15px';
+                            break;
+                        case 'leaves':
+                            particle.innerHTML = '🍃';
+                            particle.style.fontSize = '12px';
+                            break;
+                    }
+                    
+                    raceTrack.appendChild(particle);
+                    
+                    particle.animate([
+                        { transform: 'translateY(0px) rotate(0deg)', opacity: 0.8 },
+                        { transform: 'translateY(520px) rotate(360deg)', opacity: 0 }
+                    ], {
+                        duration: 3000 + Math.random() * 2000,
+                        easing: 'linear'
+                    }).onfinish = () => particle.remove();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
